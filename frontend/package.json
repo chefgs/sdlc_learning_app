@@ -1,0 +1,19 @@
+{
+  "name": "socratic-sdlc-tutor-web",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test:e2e": "node tests/e2e.js"
+  },
+  "devDependencies": {
+    "vite": "^6.4.2",
+    "puppeteer": "^22.10.0"
+  },
+  "overrides": {
+    "postcss": "^8.5.10",
+    "esbuild": "^0.25.0"
+  },
+  "private": true
+}

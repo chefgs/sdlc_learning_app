@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI Product Development Learning App - Socratic SDLC tutor based on Saravanan Gnanaguru's first principles.">
+    <title>Socratic SDLC Tutor &amp; AI Decision Center</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Floating Background Lights for Glassmorphism -->
+    <div class="bg-glow bg-glow-violet"></div>
+    <div class="bg-glow bg-glow-blue"></div>
+
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="main-header">
+            <div class="header-logo">
+                <span class="logo-icon">▲</span>
+                <div>
+                    <h1 id="main-title">Socratic SDLC &amp; AI Product Design Center</h1>
+                    <p class="subtitle">Mastering Process-First, Architecture-First, and Golden Path Engineering</p>
+                </div>
+            </div>
+            <div class="connection-status">
+                <span class="status-indicator status-offline" id="connection-indicator"></span>
+                <span id="connection-text">Connecting to Backend...</span>
+            </div>
+        </header>
+
+        <!-- Main Workspace Grid -->
+        <main class="dashboard-grid">
+            
+            <!-- Left Panel: Socratic Quiz Engine -->
+            <section class="panel glass-panel" aria-labelledby="quiz-section-title">
+                <div class="panel-header">
+                    <h2 id="quiz-section-title">AI Product Design Quizzes</h2>
+                    <button id="btn-generate-quiz" class="btn btn-primary">Generate Quiz</button>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-bar-label">
+                        <span>Quiz Progress</span>
+                        <span id="quiz-progress-text">0 / 0 Completed</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill" id="quiz-progress-fill" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <!-- Quiz Card Container -->
+                <div class="quiz-content-wrapper" id="quiz-container">
+                    <div class="empty-state">
+                        <p>Click "Generate Quiz" to load Socratic questions about AI-SDLC principles and DevOps-OS templates.</p>
+                    </div>
+                </div>
+
+                <!-- Socratic Feedback Container -->
+                <div class="socratic-feedback glass-card hidden" id="socratic-feedback-card">
+                    <div class="feedback-indicator">
+                        <span class="feedback-badge" id="feedback-badge-status">Correct</span>
+                    </div>
+                    <h3 id="feedback-title">Why this matters:</h3>
+                    <p id="feedback-explanation">Explanation text goes here...</p>
+                </div>
+            </section>
+
+            <!-- Right Panel: Socratic Chat & Thinking Stream -->
+            <section class="panel glass-panel" aria-labelledby="tutor-section-title">
+                <div class="panel-header">
+                    <h2 id="tutor-section-title">Socratic SDLC Tutor</h2>
+                    <div class="metrics-board">
+                        <div class="metric-pill" title="Tokens consumed in prompt">
+                            <span>Prompt:</span> <strong id="metric-prompt">0</strong>
+                        </div>
+                        <div class="metric-pill" title="Tokens generated in answers">
+                            <span>Output:</span> <strong id="metric-output">0</strong>
+                        </div>
+                        <div class="metric-pill" title="Model reasoning overhead tokens">
+                            <span>Thoughts:</span> <strong id="metric-thoughts">0</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Console -->
+                <div class="chat-console">
+                    <div class="chat-feed" id="chat-feed">
+                        <div class="message assistant-message">
+                            <div class="message-bubble">
+                                Welcome! I am your Socratic DevOps &amp; AI product advisor. Ask me questions about "Process-First", "Architecture-First", or how tools like DevOps-OS establish secure paths for startups.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Thinking Panel (Collaspible Accordion) -->
+                    <div class="thinking-accordion" id="thinking-panel">
+                        <button class="thinking-header" id="btn-toggle-thinking">
+                            <span class="thinking-icon">⚙️</span>
+                            <span>Tutor Reasoning (Thoughts)</span>
+                            <span class="thinking-toggle-arrow">▼</span>
+                        </button>
+                        <div class="thinking-content" id="thinking-content">
+                            <p class="empty-thoughts" id="thoughts-placeholder">No active reasoning currently. Ask a question to trigger thinking tokens.</p>
+                        </div>
+                    </div>
+
+                    <!-- Live Tool Running Panel -->
+                    <div class="tool-activity hidden" id="tool-activity-panel">
+                        <span class="tool-spinner"></span>
+                        <span id="tool-activity-text">Agent executing custom tool...</span>
+                    </div>
+
+                    <!-- Input Bar -->
+                    <div class="chat-input-bar">
+                        <input type="text" id="chat-input" placeholder="Ask about AI SDLC, paved paths, or compliance..." aria-label="Message Socratic Tutor">
+                        <button id="btn-send-message" class="btn btn-secondary">Send</button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+    <script type="module" src="app.js"></script>
+</body>
+</html>

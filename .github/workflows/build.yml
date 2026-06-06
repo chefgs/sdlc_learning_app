@@ -1,0 +1,77 @@
+name: Production Build Creation
+
+on:
+  workflow_dispatch: # Allows manual trigger from the Actions tab
+  push:
+    branches: [ "release/*" ]
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # 1. Web Production Build Packaging
+  # ---------------------------------------------------------------------------
+  web-build:
+    name: Package Web UI Bundle
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js 18
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Install Node Modules
+      working-directory: frontend
+      run: |
+        npm install --no-audit --no-fund
+
+    - name: Compile Production Build Assets (Vite)
+      working-directory: frontend
+      run: |
+        npm run build
+
+    - name: Upload Web Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: web-production-build
+        path: frontend/dist/
+        retention-days: 7
+
+  # ---------------------------------------------------------------------------
+  # 2. Mobile Bundle Export Packaging
+  # ---------------------------------------------------------------------------
+  mobile-export:
+    name: Package Mobile App Bundle
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js 18
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18
+        cache: 'npm'
+        cache-dependency-path: mobile/package-lock.json
+
+    - name: Install Mobile Dependencies
+      working-directory: mobile
+      run: |
+        npm install --no-audit --no-fund
+
+    - name: Export Mobile Bundle Assets (Metro Bundle)
+      working-directory: mobile
+      run: |
+        npx expo export
+
+    - name: Upload Mobile Bundle Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: mobile-production-bundle
+        path: mobile/dist/
+        retention-days: 7

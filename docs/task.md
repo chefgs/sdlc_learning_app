@@ -1,0 +1,28 @@
+# Task Checklist: SDLC Learning App
+
+- `[x]` Create folder structure inside `/Users/gsaravanan/.gemini/antigravity/scratch/sdlc_learning_app`
+- `[x]` Write FastAPI Backend (`backend/app.py`)
+- `[x]` Write Frontend HTML (`frontend/index.html`)
+- `[x]` Write Frontend Styling CSS (`frontend/style.css`)
+- `[x]` Write Frontend JS Logic (`frontend/app.js`)
+- `[x]` Write Unit Tests (`backend/test_app.py`)
+- `[x]` Write Dockerfile (`backend/Dockerfile`)
+- `[x]` Write Mobile Integration guidelines (`mobile_integration.md`)
+- `[x]` Write project README (`README.md`)
+- `[x]` Run unit tests and verify application compiles/runs successfully
+- `[x]` Write Expo Mobile Main Code (`mobile/App.tsx`)
+- `[x]` Write Expo Mobile Config (`mobile/app.json`)
+- `[x]` Write Expo Mobile Package Config (`mobile/package.json`)
+- `[x]` Write Expo Mobile TypeScript Config (`mobile/tsconfig.json`)
+- `[x]` Write Expo Mobile Onboarding Guide (`mobile/README.md`)
+- `[x]` Verify TypeScript compile check for the mobile app
+- `[x]` Write Web Frontend package config (`frontend/package.json`)
+- `[x]` Adjust script and style path configurations (`frontend/index.html`)
+- `[x]` Run frontend package installation and vulnerability audits
+- `[x]` Write GitHub Actions CI workflow config (`.github/workflows/ci.yml`)
+- `[x]` Verify workflow file syntax and layout settings
+- `[x]` Write Puppeteer E2E script (`frontend/tests/e2e.js`)
+- `[x]` Add testing commands and script triggers to `frontend/package.json`
+- `[x]` Run E2E test suite and generate coverage/test report summary
+- `[x]` Write GitHub Actions build workflow config (`.github/workflows/build.yml`)
+- `[x]` Verify build workflow syntax and file parameters
