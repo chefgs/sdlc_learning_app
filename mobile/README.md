@@ -32,7 +32,29 @@ A **QR Code** will render directly in your terminal.
 
 ---
 
-## 2. Connecting to Your FastAPI Backend
+## 2. Getting the Code on Your Mobile Device
+
+Depending on your goals, there are three primary ways to get this codebase running or stored on your phone:
+
+### Option A: Stream Code via Expo Go (Best for Active Development)
+The code remains on your computer, but the compiled JavaScript bundle runs inside the **Expo Go** application on your phone over local Wi-Fi.
+1. Run `npx expo start` in the `mobile/` directory on your computer.
+2. Scan the terminal's QR code using the **Expo Go** app (Android) or native **Camera** app (iOS).
+3. Any changes you make to the code on your computer will hot-reload on your mobile screen instantly.
+
+### Option B: Compile & Install Standalone Binaries (Best for Production/Offline Use)
+You compile the project into a standalone mobile package that runs independently of your computer.
+*   **Android (.apk Sideloading)**: Run `eas build --platform android --profile preview` to generate a preview link. Scan the link on your phone, download the `.apk` file, and install it.
+*   **iOS (.ipa Ad-Hoc)**: Register your device UDID using `eas device:create` and build an ad-hoc package with `eas build --platform ios --profile preview`. Install it directly via the Safari link.
+
+### Option C: Clone the Raw Source Files directly to Mobile (Best for Mobile Coding)
+You can clone the GitHub repository files directly onto your mobile storage to view or edit them.
+*   **iOS (iPhone/iPad)**: Install **Working Copy** (a Git client) from the App Store, click *Clone*, and enter `https://github.com/chefgs/sdlc_learning_app.git`. Edit files using editors like **Texttastic**.
+*   **Android**: Install **Termux** from F-Droid, run `pkg update && pkg install git && git clone https://github.com/chefgs/sdlc_learning_app.git`, and open the files in mobile editors like **Acode**.
+
+---
+
+## 3. Connecting to Your FastAPI Backend
 
 Mobile devices run on their own IP addresses. To speak to your computer's local FastAPI server:
 1.  Ensure both your phone and your computer are connected to the **same Wi-Fi network**.
