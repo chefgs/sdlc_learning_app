@@ -58,59 +58,63 @@ SOCRATIC_TUTOR_INSTRUCTIONS = """
 You are a Socratic tutor representing Saravanan Gnanaguru's SDLC First Principles.
 Your goal is to guide beginners in AI and DevOps engineering to think from first principles.
 
-We are dogfooding by using THIS actual codebase (chefgs/sdlc_learning_app) as our primary teaching subject.
-Use the repository's architecture and files as live examples:
-1. Process-First AI-SDLC: Point to the backend/test_app.py (pytest unit tests) and frontend/tests/e2e.js (Puppeteer browser E2E tests) as the quality gates that verify AI-generated files before deployment.
-2. Architecture-First AI Development: Explain how the multi-tier structure (FastAPI backend, Vite web client, Expo mobile client) was mapped out, ensuring the clients communicate only via HTTP/WebSocket APIs, with no direct access to the Gemini API Key.
-3. Paved Paths / Golden Paths: Point to backend/Dockerfile (a clean, multi-stage runner build) and .github/workflows/ (ci.yml and build.yml workflows) as templates that developer platforms offer to make compliance friction-free.
-4. Sovereign AI & Compliance: Explain how the python backend acts as a secure proxy, isolating the Gemini API key inside server-side environments instead of client bundles. Also, highlight the package.json overrides that remediated vulnerability risks.
+Core principles you teach:
+1. Process-First AI-SDLC: Simply writing LLM prompts fails in production. You must design solid underlying engineering processes first, then integrate AI into those gates.
+   *Example*: Point to backend/test_app.py (pytest) and frontend/tests/e2e.js (Puppeteer) as automated gates verifying AI outputs.
+2. Architecture-First AI Development: Always define the system boundaries, modules, security configurations, and data flows before generating code or invoking models.
+   *Example*: Point to how Vite/Expo clients communicate with the FastAPI backend proxy instead of holding API keys directly.
+3. Paved Paths / Golden Paths: Templates (such as CI/CD workflows and Docker configurations) that make the secure, compliant route the easiest path.
+   *Example*: Point to backend/Dockerfile (multi-stage builds) and .github/workflows/ as paved templates.
+4. Sovereign AI & Compliance: Keeping data and keys private, secure, and locally controlled.
+   *Example*: Point to backend/app.py acting as a secure gateway, and package.json overrides isolating vulnerabilities.
+5. DevOps-OS: A tool that automates CI/CD and scaffolding from single inputs or prompts.
 
 Pedagogical guidelines:
 - Never give direct answers initially. Answer a question with another guiding question.
-- Reference the actual files and directories of the sdlc_learning_app repository to ground your Socratic questions in the live codebase.
-- Use simple analogies (e.g. comparing container builds to shipping packages, or E2E tests to checking a car's dashboard controls).
+- Reference files and directories of the sdlc_learning_app repository (such as backend/Dockerfile or frontend/tests/e2e.js) as real-world examples to ground these general concepts.
+- Use simple analogies (e.g. comparing paved paths to building railway tracks, or architecture-first to blueprints before constructing a house).
 - Encourage the beginner to consider the security and cost implications of their choices.
 """
 
 # Default static quiz to use as an instant fallback if API key or SDK is missing
 DEFAULT_MOCK_QUIZ = {
-    "topic": "Codebase Dogfooding: chefgs/sdlc_learning_app",
+    "topic": "Saravanan's AI-SDLC & Architecture First Principles",
     "questions": [
         {
             "id": 1,
-            "question": "How does this application's architecture enforce the 'Sovereign AI' key-protection model?",
+            "question": "What is the primary risk of adopting 'Prompt-First' instead of 'Process-First' AI-SDLC?",
             "options": [
-                "By writing the GEMINI_API_KEY directly into mobile/App.tsx.",
-                "By having both Web and Mobile frontends send requests to a secure FastAPI backend, which acts as the sole credential holder.",
-                "By storing the API key in a public frontend config file.",
-                "By not using any API keys at all."
+                "It results in slower model inference.",
+                "It creates fragile, unstructured pipelines that bypass code reviews, quality gates, and automated testing.",
+                "It increases local storage consumption.",
+                "It limits the use of open-source frameworks."
             ],
-            "correct_answer": "By having both Web and Mobile frontends send requests to a secure FastAPI backend, which acts as the sole credential holder.",
-            "explanation": "To maintain security and sovereignty, the frontend and mobile apps never access credentials directly. The FastAPI backend is the proxy that connects securely to the Gemini model."
+            "correct_answer": "It creates fragile, unstructured pipelines that bypass code reviews, quality gates, and automated testing.",
+            "explanation": "Prompt-First approaches result in fragile pipelines. Process-First ensures AI is gated behind standard SDLC verification tests. (For example, see the automated Puppeteer E2E test in frontend/tests/e2e.js and pytest in backend/test_app.py)."
         },
         {
             "id": 2,
-            "question": "Why does the backend/Dockerfile utilize a 'multi-stage' container compilation process?",
+            "question": "What does the 'Architecture-First' AI Development principle advocate for?",
             "options": [
-                "To increase build times and compile debug logs.",
-                "To run the frontend and mobile codes in the same container.",
-                "To separate build-time packages from the final runtime runner, minimizing the container size and security vulnerability footprint.",
-                "To run both Python and Node.js servers in parallel."
+                "Writing the largest prompts possible to get perfect code output.",
+                "Selecting the most expensive LLMs before looking at model size.",
+                "Establishing system components, data flows, and security boundaries before generating code or invoking LLMs.",
+                "Developing native mobile UIs before writing any backend infrastructure."
             ],
-            "correct_answer": "To separate build-time packages from the final runtime runner, minimizing the container size and security vulnerability footprint.",
-            "explanation": "Multi-stage builds allow us to compile libraries in the builder stage but copy only the runtime artifacts into the runner stage, keeping the container image light and secure."
+            "correct_answer": "Establishing system components, data flows, and security boundaries before generating code or invoking LLMs.",
+            "explanation": "Establishing system boundaries ensures AI code builds inside secure, structured rails. (For example, see how Vite Web and Expo Mobile frontends in this project communicate strictly via backend-proxied API gates to protect the Gemini API Key)."
         },
         {
             "id": 3,
-            "question": "Which file in this project represents the automated 'Quality Gate' for the web frontend interface?",
+            "question": "Why are 'Paved Paths' (Golden Paths) crucial for developer platforms like DevOps-OS?",
             "options": [
-                "backend/requirements.txt",
-                "frontend/tests/e2e.js (using Puppeteer for automated browser checks)",
-                "mobile/app.json",
-                "docs/learning_app_roadmap.md"
+                "They mandate manual SSH access to production containers.",
+                "They let developers design custom build paths for each deployment.",
+                "They template and automate secure configurations (CI/CD, Terraform) so the secure route is the easiest route.",
+                "They require code bases to be completely public."
             ],
-            "correct_answer": "frontend/tests/e2e.js (using Puppeteer for automated browser checks)",
-            "explanation": "Automated E2E tests check user interactions in a real browser context. Staging this in our CI workflow (ci.yml) ensures we dogfood our quality checks before shipping code."
+            "correct_answer": "They template and automate secure configurations (CI/CD, Terraform) so the secure route is the easiest route.",
+            "explanation": "Golden Paths template complex configurations so developers can deploy safely without cognitive load. (For example, see the multi-stage backend/Dockerfile and the pre-configured GitHub workflows in this repository)."
         }
     ]
 }
@@ -135,17 +139,17 @@ async def generate_quiz():
         try:
             config = LocalAgentConfig(
                 system_instructions=(
-                    "You are an exam generator creating an SDLC quiz. Your questions must dogfood the actual "
-                    "chefgs/sdlc_learning_app repository code structure, Docker configurations, backend/test_app.py testing, "
-                    "Puppeteer E2E tests, and secure proxy patterns."
+                    "You are an exam generator creating an SDLC quiz based on Saravanan's principles. "
+                    "In the explanations of the quiz answers, weave in examples from this repository's codebase "
+                    "(e.g., backend/Dockerfile, frontend/tests/e2e.js, backend/app.py API proxying)."
                 ),
                 response_schema=SDLCQuiz
             )
             async with Agent(config) as agent:
                 prompt = (
-                    "Generate a 3-question multiple-choice quiz that dogfoods this repository's codebase. "
-                    "Create questions about the FastAPI backend proxy, the multi-stage Dockerfile, "
-                    "frontend E2E test gates, or package dependency vulnerability overrides."
+                    "Generate a 3-question quiz covering Process-First, Architecture-First, "
+                    "and Sovereign AI / compliance principles. In the explanation of each answer, "
+                    "reference specific code patterns or files in the active repository (sdlc_learning_app) as concrete examples."
                 )
                 response = await agent.chat(prompt)
                 data = await response.structured_output()
