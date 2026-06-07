@@ -19,6 +19,3 @@ services:
 # -----------------------------------------------------------------------------
 envVarGroups:
   - name: sdlc-learning-app-secrets
-    envVars:
-      - key: GEMINI_API_KEY
-        value: replace-me-in-dashboard
