@@ -1,0 +1,32 @@
+# Render Blueprint Spec: Socratic Tutor Stack
+# Import this file in the Render Dashboard (Blueprints section) to deploy the whole stack automatically.
+
+services:
+  # ---------------------------------------------------------------------------
+  # 1. Python FastAPI Backend (WebSocket Container)
+  # ---------------------------------------------------------------------------
+  - type: web
+    name: sdlc-learning-app-backend
+    env: docker
+    dockerfilePath: backend/Dockerfile
+    plan: free
+    healthCheckPath: /
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: true # Prompts you to enter your Gemini API Key in the UI
+
+  # ---------------------------------------------------------------------------
+  # 2. Vite Web Frontend (Static Website)
+  # ---------------------------------------------------------------------------
+  - type: web
+    name: sdlc-learning-app-frontend
+    env: static
+    rootDir: frontend
+    buildCommand: npm run build
+    publishPath: dist
+    envVars:
+      - key: VITE_BACKEND_URL
+        fromService:
+          type: web
+          name: sdlc-learning-app-backend
+          property: host
