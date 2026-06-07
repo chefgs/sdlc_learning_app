@@ -1,9 +1,16 @@
 // Configuration & Connection URL
-const BACKEND_HOST = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-    ? 'localhost:8000' 
-    : window.location.host;
+const BACKEND_URL_ENV = import.meta.env && import.meta.env.VITE_BACKEND_URL;
 
-const HTTP_PROTOCOL = window.location.protocol;
+const BACKEND_HOST = BACKEND_URL_ENV 
+    ? BACKEND_URL_ENV.replace(/^(https?:\/\/|wss?:\/\/)/, '') // Strip protocols if present
+    : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+        ? 'localhost:8000' 
+        : window.location.host);
+
+const HTTP_PROTOCOL = BACKEND_URL_ENV
+    ? (BACKEND_URL_ENV.startsWith('https') ? 'https:' : 'http:')
+    : window.location.protocol;
+
 const WS_PROTOCOL = HTTP_PROTOCOL === 'https:' ? 'wss:' : 'ws:';
 
 const API_QUIZ_URL = `${HTTP_PROTOCOL}//${BACKEND_HOST}/api/generate-quiz`;
