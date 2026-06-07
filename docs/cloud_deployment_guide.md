@@ -37,6 +37,15 @@ AWS App Runner provides fully managed container deployments without needing comp
     *   **Start Command**: `uvicorn app:app --host 0.0.0.0 --port 8000`
     *   **Environment Variables**: Add `GEMINI_API_KEY` securely.
 
+### Option C: Render Blueprint (Easiest Automated Stack Deployment)
+Render allows you to deploy your entire stack (FastAPI backend container + Vite static web frontend) automatically using the pre-configured `render.yaml` file at the root of the repository.
+
+1. Push your repository containing `render.yaml` to GitHub.
+2. Open the [Render Dashboard](https://dashboard.render.com/), click **New** -> **Blueprint**.
+3. Connect your GitHub repository.
+4. Render will parse your `render.yaml` config and prompt you to enter the `GEMINI_API_KEY` environment variable.
+5. Click **Approve**. Render will deploy both services in parallel, automatically configuring the web app to connect to the backend container URL.
+
 ---
 
 ## 2. Deploying the Web Frontend (Vite)
