@@ -63,6 +63,7 @@ function connectWebSocket() {
     };
 
     let activeAssistantMessageBubble = null;
+    let streamBuffer = ''; // Accumulate tokens before rendering markdown
 
     socket.onmessage = (event) => {
         const payload = JSON.parse(event.data);
@@ -72,52 +73,66 @@ function connectWebSocket() {
             if (thoughtsPlaceholder) {
                 thoughtsPlaceholder.remove();
             }
-            
+
             // Expand thoughts panel on first thought block
             if (!thinkingPanel.classList.contains('expanded')) {
                 thinkingPanel.classList.add('expanded');
                 thinkingPanel.classList.add('active-glowing');
             }
-            
+
             thinkingContent.textContent += payload.data;
-            // Auto-scroll thoughts
             thinkingContent.scrollTop = thinkingContent.scrollHeight;
 
         } else if (payload.type === 'token') {
             // Remove glow on thoughts when token streaming starts
             thinkingPanel.classList.remove('active-glowing');
 
-            // Set up a bubble if this is the start of a reply
+            // Create bubble on first token of a new reply
             if (!activeAssistantMessageBubble) {
                 const msgDiv = document.createElement('div');
                 msgDiv.className = 'message assistant-message';
-                
+
                 const bubble = document.createElement('div');
-                bubble.className = 'message-bubble';
+                bubble.className = 'message-bubble markdown-body';
                 msgDiv.appendChild(bubble);
-                
+
                 chatFeed.appendChild(msgDiv);
                 activeAssistantMessageBubble = bubble;
+                streamBuffer = '';
             }
-            
-            // Append token text
-            activeAssistantMessageBubble.textContent += payload.data;
+
+            // Buffer the raw token
+            streamBuffer += payload.data;
+
+            // Live-preview: render markdown progressively while streaming
+            if (typeof marked !== 'undefined') {
+                activeAssistantMessageBubble.innerHTML = marked.parse(streamBuffer);
+            } else {
+                activeAssistantMessageBubble.textContent = streamBuffer;
+            }
             chatFeed.scrollTop = chatFeed.scrollHeight;
 
         } else if (payload.type === 'usage') {
+            // Final render pass to ensure complete markdown is clean
+            if (activeAssistantMessageBubble && typeof marked !== 'undefined') {
+                activeAssistantMessageBubble.innerHTML = marked.parse(streamBuffer);
+            }
+
             // Update token counters
             metricPrompt.textContent = payload.data.prompt_tokens || 0;
             metricOutput.textContent = payload.data.candidates_tokens || 0;
             metricThoughts.textContent = payload.data.thoughts_tokens || 0;
-            
-            // Reset active bubble state for next response
+
+            // Reset state for next response
             activeAssistantMessageBubble = null;
+            streamBuffer = '';
 
         } else if (payload.type === 'error') {
             logger(`Tutor Error: ${payload.data}`);
             thinkingPanel.classList.remove('active-glowing');
             appendSystemMessage(`Error: ${payload.data}`);
             activeAssistantMessageBubble = null;
+            streamBuffer = '';
         }
     };
 
