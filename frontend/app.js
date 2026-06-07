@@ -46,6 +46,50 @@ let activeQuizQuestions = [];
 let answeredCount = 0;
 let currentQuestionIndex = 0;
 
+function extractFrameText(data) {
+    if (typeof data === 'string') return data;
+    if (typeof data === 'number' || typeof data === 'boolean') return String(data);
+    if (Array.isArray(data)) return data.map(extractFrameText).join('');
+    if (!data || typeof data !== 'object') return '';
+
+    const candidateKeys = ['text', 'content', 'token', 'delta', 'message', 'value'];
+    for (const key of candidateKeys) {
+        const value = data[key];
+        const extracted = extractFrameText(value);
+        if (extracted) return extracted;
+    }
+
+    return JSON.stringify(data);
+}
+
+function renderMarkdownSafely(element, text) {
+    if (!element) return;
+
+    try {
+        if (typeof marked !== 'undefined' && typeof marked.parse === 'function') {
+            element.innerHTML = marked.parse(text);
+        } else {
+            element.textContent = text;
+        }
+    } catch (error) {
+        logger(`Markdown render fallback triggered: ${error}`);
+        element.textContent = text;
+    }
+}
+
+function resetThinkingPanel() {
+    thinkingPanel.classList.remove('expanded', 'active-glowing');
+    thinkingContent.innerHTML = '<p class="empty-thoughts" id="thoughts-placeholder">No active reasoning currently. Ask a question to trigger thinking tokens.</p>';
+}
+
+function ensureThinkingPanelActive() {
+    thinkingPanel.classList.add('expanded', 'active-glowing');
+    const placeholder = document.getElementById('thoughts-placeholder');
+    if (placeholder) {
+        placeholder.remove();
+    }
+}
+
 // -----------------------------------------------------------------------------
 // 1. WebSocket Connection Manager
 // -----------------------------------------------------------------------------
@@ -64,26 +108,31 @@ function connectWebSocket() {
 
     let activeAssistantMessageBubble = null;
     let streamBuffer = ''; // Accumulate tokens before rendering markdown
+    let sawThoughtFrame = false;
 
     socket.onmessage = (event) => {
-        const payload = JSON.parse(event.data);
+        let payload;
+        try {
+            payload = JSON.parse(event.data);
+        } catch (error) {
+            logger(`Invalid WebSocket frame: ${error}`);
+            return;
+        }
 
         if (payload.type === 'thought') {
+            const thoughtText = extractFrameText(payload.data);
+            if (!thoughtText) return;
+
             // Append incoming reasoning thoughts
-            if (thoughtsPlaceholder) {
-                thoughtsPlaceholder.remove();
-            }
-
-            // Expand thoughts panel on first thought block
-            if (!thinkingPanel.classList.contains('expanded')) {
-                thinkingPanel.classList.add('expanded');
-                thinkingPanel.classList.add('active-glowing');
-            }
-
-            thinkingContent.textContent += payload.data;
+            sawThoughtFrame = true;
+            ensureThinkingPanelActive();
+            thinkingContent.textContent += thoughtText;
             thinkingContent.scrollTop = thinkingContent.scrollHeight;
 
         } else if (payload.type === 'token') {
+            const tokenText = extractFrameText(payload.data);
+            if (!tokenText) return;
+
             // Remove glow on thoughts when token streaming starts
             thinkingPanel.classList.remove('active-glowing');
 
@@ -102,20 +151,21 @@ function connectWebSocket() {
             }
 
             // Buffer the raw token
-            streamBuffer += payload.data;
+            streamBuffer += tokenText;
 
             // Live-preview: render markdown progressively while streaming
-            if (typeof marked !== 'undefined') {
-                activeAssistantMessageBubble.innerHTML = marked.parse(streamBuffer);
-            } else {
-                activeAssistantMessageBubble.textContent = streamBuffer;
-            }
+            renderMarkdownSafely(activeAssistantMessageBubble, streamBuffer);
             chatFeed.scrollTop = chatFeed.scrollHeight;
 
         } else if (payload.type === 'usage') {
             // Final render pass to ensure complete markdown is clean
-            if (activeAssistantMessageBubble && typeof marked !== 'undefined') {
-                activeAssistantMessageBubble.innerHTML = marked.parse(streamBuffer);
+            if (activeAssistantMessageBubble) {
+                renderMarkdownSafely(activeAssistantMessageBubble, streamBuffer);
+            }
+
+            if (!sawThoughtFrame && (payload.data.thoughts_tokens || 0) > 0) {
+                ensureThinkingPanelActive();
+                thinkingContent.textContent = "Reasoning tokens were consumed, but detailed thought text was not streamed to the UI for this turn.";
             }
 
             // Update token counters
@@ -126,6 +176,7 @@ function connectWebSocket() {
             // Reset state for next response
             activeAssistantMessageBubble = null;
             streamBuffer = '';
+            sawThoughtFrame = false;
 
         } else if (payload.type === 'error') {
             logger(`Tutor Error: ${payload.data}`);
@@ -133,6 +184,7 @@ function connectWebSocket() {
             appendSystemMessage(`Error: ${payload.data}`);
             activeAssistantMessageBubble = null;
             streamBuffer = '';
+            sawThoughtFrame = false;
         }
     };
 
@@ -160,7 +212,7 @@ function connectWebSocket() {
 async function fetchNewQuiz() {
     btnGenerateQuiz.disabled = true;
     btnGenerateQuiz.textContent = "Loading...";
-    quizContainer.innerHTML = `<div class="empty-state"><p>Generating Socratic Quiz via Antigravity SDK...</p></div>`;
+    quizContainer.innerHTML = `<div class="empty-state"><p>Generating Socratic Quiz...</p></div>`;
     socraticFeedbackCard.className = "socratic-feedback glass-card hidden";
 
     try {
@@ -292,7 +344,7 @@ function sendMessage() {
     appendMessage(message, 'user-message');
     
     // Reset thoughts board
-    thinkingContent.innerHTML = "";
+    resetThinkingPanel();
     
     // Send payload
     socket.send(JSON.stringify({ message: message }));
