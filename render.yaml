@@ -12,5 +12,13 @@ services:
     plan: free
     healthCheckPath: /
     envVars:
+      - fromGroup: sdlc-learning-app-secrets
+
+# -----------------------------------------------------------------------------
+# Environment Group for Shared Configurations & Secrets
+# -----------------------------------------------------------------------------
+envVarGroups:
+  - name: sdlc-learning-app-secrets
+    envVars:
       - key: GEMINI_API_KEY
-        sync: true # Prompts you to enter your Gemini API Key in the UI
+        sync: true # Prompts you to enter your Gemini API Key in the Render UI
