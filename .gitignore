@@ -1,3 +1,10 @@
+# Environment files (NEVER commit API keys)
+.env
+backend/.env
+frontend/.env
+frontend/.env.local
+*.env
+
 # Python virtual environments and caches
 venv/
 .venv/

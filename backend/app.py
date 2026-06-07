@@ -7,11 +7,18 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import pydantic
 
+# Load .env automatically for local development
+try:
+    from dotenv import load_dotenv
+    load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '.env'))
+except ImportError:
+    pass
+
 # Antigravity SDK imports
 try:
     from google.antigravity import Agent, LocalAgentConfig
     from google.antigravity.hooks import hooks
-    from google.antigravity.types import HookResult, UsageMetadata
+    from google.antigravity.types import UsageMetadata
     ANTIGRAVITY_AVAILABLE = True
 except ImportError:
     ANTIGRAVITY_AVAILABLE = False
@@ -168,17 +175,34 @@ async def websocket_endpoint(websocket: WebSocket):
     logger.info("New WebSocket connection accepted.")
 
     agent_instance = None
-    
+
     # Initialize the Antigravity agent if keys are present
     if ANTIGRAVITY_AVAILABLE and "GEMINI_API_KEY" in os.environ:
         try:
+            # ----------------------------------------------------------------
+            # FIX: response.thoughts and async-for-token are MUTUALLY EXCLUSIVE
+            # iterators on the same underlying stream. Consuming response.thoughts
+            # first exhausts the stream so the token iterator yields nothing.
+            # Solution: use a single token iterator and capture thoughts via a
+            # per-session hook that pushes thought frames over the WebSocket.
+            # ----------------------------------------------------------------
+            ws_ref = websocket  # captured in closure below
+
+            class ThoughtRelayHook(hooks.OnThoughtHook):
+                """Relay each thought chunk to the WebSocket as a 'thought' frame."""
+                async def run(self, context, data):
+                    try:
+                        await ws_ref.send_json({"type": "thought", "data": str(data)})
+                    except Exception:
+                        pass  # WebSocket may have disconnected
+
             config = LocalAgentConfig(
-                system_instructions=SOCRATIC_TUTOR_INSTRUCTIONS
+                system_instructions=SOCRATIC_TUTOR_INSTRUCTIONS,
+                hooks=[ThoughtRelayHook()],
             )
-            # We keep the agent open for the websocket session
             agent_instance = Agent(config)
             await agent_instance.__aenter__()
-            logger.info("Antigravity Agent initialized for WebSocket stream.")
+            logger.info("Antigravity Agent initialised for WebSocket stream.")
         except Exception as e:
             logger.error(f"Error starting Antigravity Agent: {e}")
             agent_instance = None
@@ -189,30 +213,23 @@ async def websocket_endpoint(websocket: WebSocket):
             data = await websocket.receive_text()
             payload = json.loads(data)
             user_message = payload.get("message", "")
-            
+
             if not user_message:
                 continue
-            
+
             # If the Antigravity agent is available, use it to stream response
             if agent_instance:
                 try:
                     response = await agent_instance.chat(user_message)
-                    
-                    # 1. Stream Thoughts/Reasoning
-                    async for thought in response.thoughts:
-                        await websocket.send_json({
-                            "type": "thought",
-                            "data": thought
-                        })
-                        
-                    # 2. Stream Response Tokens
+
+                    # Stream response tokens — thoughts arrive via ThoughtRelayHook
                     async for token in response:
                         await websocket.send_json({
                             "type": "token",
                             "data": token
                         })
-                        
-                    # 3. Stream Token Usage Audit
+
+                    # Send token usage audit frame
                     usage: UsageMetadata = agent_instance.conversation.total_usage
                     await websocket.send_json({
                         "type": "usage",
