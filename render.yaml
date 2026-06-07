@@ -9,6 +9,7 @@ services:
     name: sdlc-learning-app-backend
     env: docker
     dockerfilePath: backend/Dockerfile
+    dockerContext: backend # Set the context to backend directory where requirements.txt resides
     plan: free
     healthCheckPath: /
     envVars:
